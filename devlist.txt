@@ -1,0 +1,38 @@
+Work can be divided into following sections
+
+1) Design and Assets
+2) User Creation/ Auth/ Schemas
+3) Logging and Tracking
+4) Visuals and Packaging
+5) Recommendations
+6) Docs and Publishing
+
+EDAMAM Key:ba328c998104494ab3c083fdb2e6ff91	
+id:94eae1d7
+
+Deadlines
+
+Day 1
+* Home Screen
+* Basic Routing
+* Brand Identity Design
+* Home Page Design
+* Study Tracking and logging
+
+Day 2
+* Docs module 1
+* Auth and Creation
+* Diet Logging
+
+
+New Rules
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}

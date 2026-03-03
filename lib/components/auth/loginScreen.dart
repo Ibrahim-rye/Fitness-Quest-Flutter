@@ -1,0 +1,118 @@
+import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+class loginScreen extends StatelessWidget {
+  const loginScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Column(
+        children: [
+          Text('Login'),
+          LoginForm(),
+        ],
+      ),
+    );
+  }
+}
+
+class LoginForm extends StatefulWidget {
+  const LoginForm({super.key});
+
+  @override
+  _LoginFormState createState() => _LoginFormState();
+}
+
+class _LoginFormState extends State<LoginForm> {
+  final _formKey = GlobalKey<FormState>();
+  late String _email;
+  late String _password;
+
+  @override
+  Widget build(BuildContext context) {
+    return Form(
+      key: _formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TextFormField(
+            decoration: const InputDecoration(labelText: 'Email'),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter your email';
+              }
+              return null;
+            },
+            onChanged: (value) {
+              _email = value;
+            },
+          ),
+          const SizedBox(height: 16.0),
+          TextFormField(
+            decoration: const InputDecoration(labelText: 'Password'),
+            obscureText: true,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter a password';
+              }
+              return null;
+            },
+            onChanged: (value) {
+              _password = value;
+            },
+          ),
+          const SizedBox(height: 32.0),
+          ElevatedButton(
+            onPressed: () {
+              if (_formKey.currentState!.validate()) {
+                loginFunction(context, _email, _password);
+              }
+            },
+            child: const Text('Login'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+void showErrorDialog(BuildContext context, String message) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Error'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            child: const Text('OK'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
+void loginFunction(BuildContext context, String email, String password) async {
+  try {
+    await FirebaseAuth.instance.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+    print('User logged in successfully!');
+  } on FirebaseAuthException catch (e) {
+    if (e.code == 'user-not-found') {
+      showErrorDialog(context, 'No user found for that email.');
+    } else if (e.code == 'wrong-password') {
+      showErrorDialog(context, 'Wrong password provided for that user.');
+    } else {
+      showErrorDialog(context, 'Error: ${e.message}');
+    }
+  } catch (e) {
+    showErrorDialog(context, 'Error: $e');
+  }
+}
